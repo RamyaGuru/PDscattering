@@ -63,12 +63,13 @@ Function: mass fluctuation parameter calculation with BFZ parameter
 """
 def bfz(stoich, mass, subst, c):
     m_uc = np.dot(stoich, subst)*c + np.dot(stoich, mass)*(1-c)
-    natoms = len(stoich)
+    natoms = sum(stoich)
     gamma = 0
     for n in range(len(mass)):
         msite = subst[n]*c + mass[n]*(1-c)
         gamma_s = (stoich[n]/natoms)*c*(1-c)*(msite/(m_uc/natoms))**2*((mass[n] - subst[n])/msite)**2
         gamma = gamma + gamma_s
+        print(gamma_s)
     return gamma
 
 """
@@ -109,7 +110,7 @@ for c in comp:
     gamma = bfz(stoich, mass, subst, c)
     gammaPUC = puc(stoich, mass, subst, c)
     u = (prefix*gamma*kappa[0])**(1/2)
-    uPUC = (prefix*gammaPUC*kappa[0])**(1/2)
+    uPUC = (17*prefix*gammaPUC*kappa[0])**(1/2)
     kL[i] =kappa[0]*np.arctan(u)/u
     kL_PUC[i] = kappa[0]*np.arctan(uPUC)/uPUC
     i=i+1

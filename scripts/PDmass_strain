@@ -11,7 +11,55 @@ PD mass and strain fluctuation scattering
 
 from PDmassfluct import bfz, puc
 import numpy as np
+import matplotlib.pyplot as plt
+
+"""
+Constants
+"""
+kb = 1.38e-23
+#debyeT = 386.554
+#vol = 12.6e-30
+h = 1.054e-34
 
 
+datafile = "/Users/guru/Documents/PDscattering/datafiles/Ge_SnSe.csv"
 
+#Parse header: length of header vector is number of site, and values are the site degenracies
+with open(datafile, 'r') as f:
+    stoich = f.readline().split("\t")
+    stoich[-1] = stoich[-1][:-1]
+    stoich = list(map(int, stoich))
+    stoich = np.array(stoich)
+    mass = f.readline().split("\t")
+    mass[-1] = mass[-1][:-1]
+    mass = list(map(float, mass))
+    mass = np.array(mass)
+    subst = f.readline().split("\t")
+    subst[-1] = subst[-1][:-1]
+    subst = list(map(float, subst))
+    subst = np.array(subst)
+    rad = f.readline().split("\t")
+    rad[-1] = rad[-1][:-1]
+    rad = list(map(float, rad))
+    rad = np.array(rad)
+    radsub = f.readline().split("\t")
+    radsub[-1] = radsub[-1][:-1]
+    radsub = list(map(float, radsub))
+    radsub = np.array(radsub)
+    nsites = len(stoich)
+    natoms = sum(stoich)
+    props = f.readline().split("\t")
+    props[-1] = props[-1][:-1]
+    [debyeT, vol]  = list(map(float, props))
+data = np.genfromtxt(datafile, dtype ='float', skip_header = 6, delimiter = ",")
+comp = data[:,0]
+kappa = (data[:,1])
+
+"""
+Plot the thermal conductivity data
+"""
+plt.figure()
+plt.scatter(comp, kappa)
+plt.xlabel('Composition')
+plt.ylabel('Thermal conductivity (W/mK)')
 
