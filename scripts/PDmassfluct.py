@@ -20,12 +20,10 @@ from math import pi as pi
 Constants
 """
 kb = 1.38e-23
-#debyeT = 386.554
-#vol = 12.6e-30
 h = 1.054e-34
 
 
-datafile = "/Users/guru/Documents/PDscattering/datafiles/FilledSkutterudite.csv"
+datafile = "/Users/guru/Documents/PDscattering/datafiles/AZnSb2_500K.csv"
 
 #Parse header: length of header vector is number of site, and values are the site degenracies
 with open(datafile, 'r') as f:
@@ -33,6 +31,8 @@ with open(datafile, 'r') as f:
     stoich[-1] = stoich[-1][:-1]
     stoich = list(map(int, stoich))
     stoich = np.array(stoich)
+    props = f.readline().split("\t")
+    props[-1] = props[-1][:-1]
     mass = f.readline().split("\t")
     mass[-1] = mass[-1][:-1]
     mass = list(map(float, mass))
@@ -43,12 +43,10 @@ with open(datafile, 'r') as f:
     subst = np.array(subst)
     nsites = len(stoich)
     natoms = sum(stoich)
-    props = f.readline().split("\t")
-    props[-1] = props[-1][:-1]
     [debyeT, vol]  = list(map(float, props))
-data = np.genfromtxt(datafile, dtype ='float', skip_header = 4, delimiter = ",")
+data = np.genfromtxt(datafile, dtype ='float', skip_header = 10, delimiter = ",")
 comp = data[:,0]
-kappa = 1/(data[:,1])
+kappa = (data[:,1])
 
 vs = (kb/h)*debyeT*(vol/(6*pi**2))**(1/3)
 """
@@ -61,7 +59,7 @@ plt.ylabel('Thermal conductivity (W/mK)')
 """
 Function: mass fluctuation parameter calculation with BFZ parameter
 """
-def bfz(stoich, mass, subst, c):
+def bfz(c,stoich, mass, subst):
     m_uc = np.dot(stoich, subst)*c + np.dot(stoich, mass)*(1-c)
     natoms = sum(stoich)
     gamma = 0
@@ -69,14 +67,13 @@ def bfz(stoich, mass, subst, c):
         msite = subst[n]*c + mass[n]*(1-c)
         gamma_s = (stoich[n]/natoms)*c*(1-c)*(msite/(m_uc/natoms))**2*((mass[n] - subst[n])/msite)**2
         gamma = gamma + gamma_s
-        print(gamma_s)
     return gamma
 
 """
-Function: mass flucatuation parameter calculation wiht the PUC parameter 
+Function: mass fluctuation parameter calculation wiht the PUC parameter 
 """
 
-def puc(stoich, mass, subst, c):
+def puc(c,stoich, mass, subst):
     gammaPUC = 0
     m_uc = np.dot(stoich, subst)*c + np.dot(stoich, mass)*(1-c)
     #print(m_uc)
@@ -90,32 +87,46 @@ def puc(stoich, mass, subst, c):
             gamma_nm = binom.pmf(m, stoich[n], c)*(1-(m_uc_nm/m_uc))**2
             gamma_s = gamma_s + gamma_nm
         #print(gamma_s)
-        gammaPUC = gammaPUC+ gamma_s
-    return gammaPUC
+        gammaPUC = (gammaPUC+ gamma_s)
+    return gammaPUC*natoms
 
 """
-Function: strain fluctuation parameter calulation
+Function: mass fluctuation as mixture of end members due to electron counting
 """
+def puc2(c,stoich, mass, subst):
+    gamma = 0
+    mH = np.dot(stoich, mass)
+    mS = np.dot(stoich, subst)
+    m_avg = mH*(1-c) + mS*c
+    gamma = (c*(1-c)*((mH-mS)/m_avg)**2)
+    return gamma*natoms
+
 """
 Compute the thermal conductivity and plot
 """
 kL = np.zeros(len(comp))
 kL_PUC = np.zeros(len(comp))
 kL_Yang = np.zeros(len(comp))
+kL_PUC2 = np.zeros(len(comp))
 prefix = (6**(1/3)/2)*(pi**(5/3)/kb)*(vol**(2/3)/vs)
 i=0
 crange = np.linspace(0.0001,0.99999,100)
-gammaPUC = puc(stoich, mass, subst, 0.9999)
+gammaPUC = puc(0.9999, stoich, mass, subst)
 for c in comp:
-    gamma = bfz(stoich, mass, subst, c)
-    gammaPUC = puc(stoich, mass, subst, c)
+    gamma = bfz(c, stoich, mass, subst)
+    gammaPUC = puc(c, stoich, mass, subst)
+    gammaPUC2 = puc2(c,stoich, mass, subst)
     u = (prefix*gamma*kappa[0])**(1/2)
-    uPUC = (17*prefix*gammaPUC*kappa[0])**(1/2)
+    uPUC = (prefix*gammaPUC*kappa[0])**(1/2)
+    uPUC2 = (prefix*(gammaPUC2)*kappa[0])**(1/2)
     kL[i] =kappa[0]*np.arctan(u)/u
     kL_PUC[i] = kappa[0]*np.arctan(uPUC)/uPUC
+    kL_PUC2[i] = kappa[0]*np.arctan(uPUC2)/uPUC2
     i=i+1
-plt.plot(comp, kL)
-plt.plot(comp, kL_PUC)
+plt.plot(comp, kL, label = "mass fluctuation BFZ")
+plt.plot(comp, kL_PUC, label = "mass fluctuation PUC")
+plt.plot(comp, kL_PUC2, label = "mass fluctuation PUC limited")
+plt.legend()
 
 """ 
 Yang's Model
