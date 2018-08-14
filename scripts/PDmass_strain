@@ -26,7 +26,7 @@ kb = 1.38e-23
 h = 1.054e-34
 eps = 3.5
 eps2= 0.21
-datafile = "/Users/guru/Documents/PDscattering/datafiles/AZnSb2_500K.csv"
+datafile = "/Users/guru/Documents/PDscattering/datafiles/LSCO.csv"
 
 #%%
 #Parse header: length of header vector is number of site, and values are the site degenracies
@@ -71,10 +71,10 @@ with open(datafile, 'r') as f:
     Gsub[-1] = Gsub[-1][:-1]
     Gsub = list(map(float, Gsub))
     Gsub = np.array(Gsub)
-    [debyeT, vol]  = list(map(float, props))
+    [debyeT, vol, grun, nu]  = list(map(float, props))
 data = np.genfromtxt(datafile, dtype ='float', skip_header = 10, delimiter = ",")
-comp = data[0:3,0]
-kappa = (data[0:3,1])
+comp = data[:,0]
+kappa = 1/(data[:,1])
 vs = (kb/h)*debyeT*(vol/(6*pi**2))**(1/3)
 
 kL_BFZ = np.zeros(len(comp))
@@ -94,7 +94,7 @@ Functions for the strain Scattering Parameter
 #Yang function uses exact inputs from the Yang model
 def yangmod(c, stoich, rad, radsub):
     natoms = sum(stoich)
-    r_uc = (np.dot(stoich, subst)*c + np.dot(stoich, rad)*(1-c))/natoms
+    r_uc = (np.dot(stoich, radsub)*c + np.dot(stoich, rad)*(1-c))/natoms
     natoms = sum(stoich)
     gamma = 0
     for n in range(len(mass)):
@@ -175,20 +175,22 @@ def fiteps(Mfunc, Sfunc, inputM, inputS, comp, kappa):
         return kL
     eps, cov = curve_fit(gammatot, comp, kappa, bounds = (0,np.inf))
     return eps
-
-"""
-Computing epsilon
-"""
+##%%
+#"""
+#Computing epsilon
+#"""
 Gfluct = abs(G-Gsub)/Gsub
 latfluct = abs(lat - latsub)/latsub
 C = Gfluct/latfluct
 rat = Gsub/G
-grun = 3.13 # gruneisen for SnSe from Xiao2016 
-nu = 0.21806 #Voigt Posson ratio from MatProj
+#grun = 0.95 #3.13 # gruneisen for SnSe from Xiao2016 
+#nu = 0.193 #0.21806 #Voigt Posson ratio for SnSe from MatProj
 conv= (1+nu)*rat/(2+rat+nu*(rat-4))
 epscalc = 12*(conv*((1/6)**(1/2)*C - 4.2*grun*(2/3)**(1/2)))**2
 #epscalc = 2*((C-6.4*grun)*((1+nu)*rat/(2+rat+nu*(rat-4))))**2
+eps_noG = 2*(6.4*3.08*((1+nu)/(3*(1-nu))))**2
 print('Calculated value for epsilon is: %4.4f' % epscalc)
+print('Calculated value of epsilon (no G fluctuation): %4.4f' % eps_noG)
 """ 
 Function call to get the value of epsilon 
 """
