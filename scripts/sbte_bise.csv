@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Aug 30 17:08:56 2018
+
+@author: guru
+
+Bi2Se3-Sb2Te3 test file
+"""
+from PDScattering import kLcurve, PropsM
+import numpy as np
+import matplotlib.pyplot as plt
+
+directory = "/Users/guru/Documents/PDscattering/datafiles/"
+
+#Compute the thermal conductivity for both cases
+
+props = PropsM(directory + "SbTe_BiSe.csv")
+
+props.KappaL()
+
+
