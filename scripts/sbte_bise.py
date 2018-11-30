@@ -20,11 +20,12 @@ directory = "/Users/guru/Documents/PDscattering/datafiles/"
 
 prop = PropsM(directory + "mass_cancel.csv")
 
-crange = np.linspace(0.00001,0.9999,5)
+sz = 20
+crange = np.linspace(0.00001,0.9999,sz)
 
-gammaS = np.zeros(5)
-gammaUC = np.zeros(5)
-gammaUC2 = np.zeros(5)
+gammaS = np.zeros(sz)
+gammaUC = np.zeros(sz)
+gammaUC2 = np.zeros(sz)
 i=0
 for c in crange:
     prop.bfz(c)
