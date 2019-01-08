@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib as mtplt
 
-mtplt.rcParams['font.size'] = '14'
+mtplt.rcParams['font.size'] = '16'
 mtplt.rcParams['font.family'] = 'sans-serif'
 mtplt.rcParams['lines.linewidth'] = 2
 mtplt.rcParams['font.weight'] = 'bold'
@@ -145,10 +145,10 @@ for r in [1,2]:
 
 kl_Si29= k0_Si29 * (np.arctan(omega_Si[1,:])/omega_Si[1,:])
 kl_Si30=k0_Si30 * (np.arctan(omega_Si[2,:])/omega_Si[2,:])
-print(omega_Si[1,:])
-print(kl_Si29)
+#print(omega_Si[1,:])
+#print(kl_Si29)
 font = {'family' : 'normal',
-        'size'   : 14}
+        'size'   : 16}
 
 mtplt.rc('font', **font)
 mtplt.rcParams['lines.linewidth'] = 3
@@ -167,9 +167,10 @@ p4, = plt.plot(c*100, kl_Si30, color='xkcd:green', label='Si$_{30}$ Klemens')
 #plt.xlim([0,0.1])
 #plt.ylim([55,58])
 
+
 ax.text(0.5,0.83,'Si-29', horizontalalignment = 'center', verticalalignment = 'center', rotation =-10, transform = ax.transAxes, color = 'xkcd:dark purple', fontsize = 16)
 ax.text(0.5, 0.42, 'Si-30', horizontalalignment = 'center', verticalalignment = 'center', rotation = -36, transform = ax.transAxes, color = 'xkcd:dark green', fontsize = 16)
 
 plt.ylabel(r'$\kappa_L$ (W/m/K)')
-plt.xlabel(r'$\mathrm{Isotope Composition (%)}$')
-plt.savefig('isotope_scattering_site_800K.png', dpi=300, bbox_inches = 'tight')
+plt.xlabel(r'$\mathrm{Si^{\prime}_{x}Si_{1-x}}$')
+plt.savefig('isotope_scattering_site_800K.pdf', dpi=300, bbox_inches = 'tight')
